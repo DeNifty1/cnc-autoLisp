@@ -1,0 +1,70 @@
+;;;  The purpose of this program is to connect rectangular shapes
+;;;  together for burning machines. 
+
+(defun c:cv( / p1x p1y p3y p3 p2x p2y dis dist p4x p4 p5x p2y2 p5
+	       filpck p6x p7y p8x p9y p16 p17 p18 p19 p6 p7 p8 p9 
+	       p10 p11 p12 box)
+	(graphscr)
+	(setq box(getvar "pickbox"))
+	(setvar "PICKBOX" 0)
+	(setvar "osmode" 32)
+	(setq p1 (getpoint "\nPick first intersection: "))
+	(setq p2 nil)
+    (while (= p2 nil)
+	(setvar "osmode" 32)
+	(setq p2 (getpoint "\nPick next intersection: "))
+	(if (= offst nil)
+		(setq offst (getdist "\nEnter offset distance:"))
+	)
+	(if (= p2 nil)
+		(setvar "pickbox" box)
+	)
+	(setvar "osmode" 0)
+	
+;;;*** Assigns p3 ***
+	(setq p1x (car p1))
+	(setq p1y (cadr p1))
+	(setq p3y (+ p1y offst))
+	(setq p3 (list p1x p3y))
+
+;;;;*** assigns p4 ***
+	(setq p2x (car p2))
+	(setq p2y (cadr p2))
+	(setq dis (- p2x p1x))
+	(setq dist (+ dis p1x))
+	(setq p4x (- dist offst))
+	(setq p4 (list p4x p3y))
+
+;;;*** assigns p5 ***
+	(setq p5x (- p2x offst))
+	(setq p2y2 (+ p2y 0.125))
+	(setq p5 (list p5x p2y2))
+	(command "line" p3 p4 p5 "")
+	
+;;;*** Fillet lines ***
+	(setq filpck 0.05)
+	(setq p6x (+ p1x filpck))
+	(setq p7y (- p1y filpck))
+	(setq p8x (+ p2x filpck))
+	(setq p9y (- p2y filpck))
+	(setq p16 (list p6x p1y))
+	(setq p17 (list p1x p7y))
+	(setq p18 (list p8x p2y))
+	(setq p19 (list p2x p9y))
+	(setq p6 (ssget p16))
+	(setq p7 (ssget p17))
+	(setq p8 (ssget p18))
+	(setq p9 (ssget p19))
+	(setq p10 (ssget p3))
+	;;;(setq p11 (ssget p4))
+	(setq p12 (ssget p5))
+	;;;(command "cr" "0.95" p6 p7)
+	(command "fillet" p10 p7)
+	(command "fillet" p10 p9)
+	(command "fillet" p8 p12)
+	(command "fillet" p12 p10)
+	(setq p1 p2)
+	(setq p2 nil)
+    )    
+    (setvar "PICKBOX" box)
+)
